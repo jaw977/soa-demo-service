@@ -1,0 +1,15 @@
+{
+  "name": "soa-demo-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "Service.js",
+  "scripts": {
+    "test": "test.js"
+  },
+  "author": "",
+  "private": true,
+  "license": "MIT",
+  "dependencies": {
+    "seneca": "^3.3.0"
+  }
+}
