@@ -10,7 +10,7 @@ class Service {
 		
 		for (let client of jsonic(this.env.CLIENTS)) {
 			var addr = this.env[client + ".ADDR"];
-			if (addr.match(/\D/)) addr = {host:addr};
+			if (addr.match(/\D/)) addr = {host:addr, port:80};
 			else addr = {port:addr};
 			this.addrFor[client] = addr;
 		}
