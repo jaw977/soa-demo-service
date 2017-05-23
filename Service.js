@@ -1,10 +1,19 @@
 const seneca = require('seneca');
-const config = require('./config.js');
+const jsonic = require('jsonic');
 
 class Service {
 	constructor(name) {
 		this.seneca = seneca();
 		this.name = name;
+		this.env = process.env;
+		this.addrFor = {};
+		
+		for (let client of jsonic(this.env.CLIENTS)) {
+			var addr = this.env[client + ".ADDR"];
+			if (addr.match(/\D/)) addr = {host:addr};
+			else addr = {port:addr};
+			this.addrFor[client] = addr;
+		}
 	}
 	
 	add(pattern, action) {
@@ -20,23 +29,26 @@ class Service {
 	}
 	
 	publish(event, info) {
-		const subs = config.subscribedTo[event];
+		const subs = jsonic(this.env.SUBSCRIPTIONS)[event];
 		if (! subs) return;
 		for (let sub of subs) {
-			this.seneca.act({role:sub.role, _cmd:event}, info);
+			this.seneca.act({role:sub, _cmd:event}, info);
 		}
 	}
 	
-	clients(type) {
-		for (let t in config.messageRouting) {
-			if (t != this.name && (! type || config.messageType[t] == type)) this.seneca.client(config.messageRouting[t]);
+	clients() {
+		for (let client of jsonic(this.env.CLIENTS)) {
+			if (client == this.name) continue;
+			const params = Object.assign({pin:this.env[client + ".PIN"]}, this.addrFor[client]);
+			this.seneca.client(params);
 		}
 	}
 	
 	listen() {
-		for (let t in config.messageRouting) {
-			if (t == this.name) this.seneca.listen(config.messageRouting[t]);
-		}
+		this.seneca.listen({
+			port:this.env.PORT || this.addrFor[this.name].port, 
+			pin:this.env[this.name + ".PIN"]
+		});
 	}
 }
 

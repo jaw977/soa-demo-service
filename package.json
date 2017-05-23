@@ -10,6 +10,7 @@
   "private": true,
   "license": "MIT",
   "dependencies": {
+    "jsonic": "^0.3.0",
     "seneca": "^3.3.0"
   }
 }
