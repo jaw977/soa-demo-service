@@ -39,7 +39,7 @@ class Service {
 	clients() {
 		for (let client of jsonic(this.env.CLIENTS)) {
 			if (client == this.name) continue;
-			const params = Object.assign({pin:this.env[client + ".PIN"]}, this.addrFor[client]);
+			const params = Object.assign({pin:this.pin(client)}, this.addrFor[client]);
 			this.seneca.client(params);
 		}
 	}
@@ -47,8 +47,13 @@ class Service {
 	listen() {
 		this.seneca.listen({
 			port:this.env.PORT || this.addrFor[this.name].port, 
-			pin:this.env[this.name + ".PIN"]
+			pin:this.pin()
 		});
+	}
+	
+	pin(client) {
+		const name = client || this.name;
+		return this.env[name + ".PIN"] || "role:" + name;
 	}
 }
 
